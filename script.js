@@ -4,15 +4,37 @@ const searchInput = document.querySelector("#searchInput");
 const notesContainer = document.querySelector("#notesContainer");
 
 let tasks = [];
+let editingIndex = -1;
 
-let createNoteTasks = function (noteTask) {
+function renderNotes(){
+    notesContainer.innerHTML = "";
+        
+    for (let i = 0; i < tasks.length; i++) {
+       createNoteTasks(tasks[i], i);
+    }
+}
+
+
+let createNoteTasks = function (noteTask, index) {
     let note = document.createElement("div");
     note.classList.add("note");
 
     let p = document.createElement("p");
-    p.textContent = noteTask
+    p.textContent = noteTask.text;
+
     let buttonContainer = document.createElement("div");
     buttonContainer.classList.add("buttonContainer");
+
+    let pinBtn = document.createElement("button");
+    //pinBtn.textContent = "Pin";
+
+    if (noteTask.pinned) {
+        pinBtn.textContent = "Unpin"
+    } else {
+        pinBtn.textContent = "Pin"
+    }
+
+    pinBtn.classList.add("pinBtn");
 
     let editBtn = document.createElement("button");
     editBtn.textContent = "Edit";
@@ -22,22 +44,43 @@ let createNoteTasks = function (noteTask) {
     deleteBtn.textContent = "Delete";
     deleteBtn.classList.add("deleteBtn");
  
+    buttonContainer.appendChild(pinBtn);
     buttonContainer.appendChild(editBtn);
     buttonContainer.appendChild(deleteBtn);
-    note.appendChild(p)
+    note.appendChild(p);
     note.appendChild(buttonContainer);
     notesContainer.appendChild(note);
 
+    pinBtn.addEventListener("click", function () {
+        noteTask.pinned = !noteTask.pinned;
+
+        tasks.sort((a, b) => b.pinned - a.pinned);
+
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        renderNotes();
+    })
+
     editBtn.addEventListener("click", function () {
-        noteInput.value = p.textContent;
-        note.remove()
+        noteInput.value = noteTask.text;
+        editingIndex = index;
+        addBtn.textContent = "Update Note";
+        //note.remove();
     });
 
     deleteBtn.addEventListener("click", function () {
-        let currentNote = tasks.indexOf(noteTask);
-        tasks.splice(currentNote, 1);
-        note.remove();
-        localStorage.setItem("tasks", JSON.stringify(tasks))
+
+        let result = confirm("Are you sure you want to delete this note?");
+
+        if (result) {
+            
+            let currentNote = tasks.indexOf(noteTask);
+            tasks.splice(currentNote, 1);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+
+            renderNotes();
+        }
+
     });
 
 
@@ -60,17 +103,34 @@ searchInput.addEventListener("input", function () {
 
 addBtn.addEventListener("click", function () {
     let noteInputValue = noteInput.value.trim();
+
+     if (noteInputValue === "") {
+         return alert("Please Enter Your Note");
+     };
+
+     if (editingIndex === -1) {
+
+        let newTask = {
+          text: noteInputValue,
+          pinned: false,
+        }
+
+        tasks.push(newTask);
+
+     } else {
+
+        tasks[editingIndex].text = noteInputValue;
+     }
     
-    if (noteInputValue === "") {
-        return alert("Please Enter Your Note");
-    };
+     localStorage.setItem("tasks", JSON.stringify(tasks));
 
-    tasks.push(noteInputValue);
+     editingIndex = -1;
 
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    createNoteTasks(noteInputValue);
+     addBtn.textContent = "Add Note"
 
-    noteInput.value = "";
+     renderNotes();
+     
+     noteInput.value = "";
 });
 
 
@@ -82,9 +142,6 @@ window.addEventListener("load", function () {
         return;
     } else{
         tasks = saveNote;
-        for (let i = 0; i < tasks.length; i++) {
-            createNoteTasks(tasks[i]);
-            
-        };
+        renderNotes();
     };
 });

@@ -120,6 +120,14 @@ h1{
     transition: .3s;
 }
 
+.pinBtn{
+    background: royalblue;
+}
+
+.pinBtn:hover{
+    background: rgb(22, 38, 87)
+}
+
 .editBtn{
     background: #2563eb;
 }
