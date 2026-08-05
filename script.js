@@ -1,13 +1,16 @@
 const noteInput = document.querySelector("#noteInput");
 const addBtn = document.querySelector("#addBtn");
 const searchInput = document.querySelector("#searchInput");
-const notesContainer = document.querySelector("#notesContainer");
+const pinnedNotesContainer = document.querySelector("#pinnedNotesContainer");
+const allNotesContainer = document.querySelector("#allNotesContainer");
 
 let tasks = [];
 let editingIndex = -1;
 
 function renderNotes(){
-    notesContainer.innerHTML = "";
+    
+    pinnedNotesContainer.innerHTML = "";
+    allNotesContainer.innerHTML = "";
         
     for (let i = 0; i < tasks.length; i++) {
        createNoteTasks(tasks[i], i);
@@ -26,12 +29,11 @@ let createNoteTasks = function (noteTask, index) {
     buttonContainer.classList.add("buttonContainer");
 
     let pinBtn = document.createElement("button");
-    //pinBtn.textContent = "Pin";
 
     if (noteTask.pinned) {
-        pinBtn.textContent = "Unpin"
+        pinBtn.textContent = "Unpin";
     } else {
-        pinBtn.textContent = "Pin"
+        pinBtn.textContent = "Pin";
     }
 
     pinBtn.classList.add("pinBtn");
@@ -49,7 +51,13 @@ let createNoteTasks = function (noteTask, index) {
     buttonContainer.appendChild(deleteBtn);
     note.appendChild(p);
     note.appendChild(buttonContainer);
-    notesContainer.appendChild(note);
+
+    if (noteTask.pinned) {
+        pinnedNotesContainer.appendChild(note);
+    } else {
+        allNotesContainer.appendChild(note);
+    }
+    
 
     pinBtn.addEventListener("click", function () {
         noteTask.pinned = !noteTask.pinned;
@@ -145,3 +153,5 @@ window.addEventListener("load", function () {
         renderNotes();
     };
 });
+
+lucide.createIcons();

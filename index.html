@@ -8,29 +8,86 @@
 </head>
 <body>
 
-    <div class="container">
+    <header>
+        <div>
+            <h1 class="logo">
+               <i data-lucide="notebook"></i>
+               Notes App
+            </h1>
+        </div>
+        
 
-    <h1>Notes App</h1>
+        <div class="header-actions">
 
-    <div id="input-section">
-        <textarea
-            id="noteInput"
-            placeholder="Write your note...">
-        </textarea>
+            <i data-lucide="search"></i>
 
-        <button id="addBtn">Add Note</button>
-    </div>
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search notes..."
+            >
 
-    <input
-        type="text"
-        id="searchInput"
-        placeholder="Search notes...">
+            <!-- dark mode -->
+            <button id="themeBtn">
 
-    <div id="notesContainer"></div>
+            <i data-lucide="moon"></i>
 
-    </div> 
-  
+            </button>
+             
+        </div>        
+
+    </header>
+
+    <main>
+
+        <section class="input-section">
+
+            <div class="input-box">
+
+               <textarea
+                  id="noteInput"
+                  placeholder="Write your note...">
+               </textarea>
+
+               <div class="input-actions">
+
+                  <button id="addBtn">Add Note</button>
+
+                 <button id="colorBtn">
+                    <i data-lucide="palette"></i>
+                    Color
+                 </button>
+
+               </div>
+
+               
+            </div>
+        </section>
+
+        <section class="pinned-section">
+
+            <h2> Pinned Notes</h2>
+
+            <div id="pinnedNotesContainer">
+
+            </div>
+
+        </section>
+
+        <section class="all-notes-section">
+
+            <h2> All Notes</h2>
+
+            <div id="allNotesContainer">
+
+            </div>
+
+        </section>
+
+    </main>
+
     
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="script.js"></script>
 </body>
 </html>
