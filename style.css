@@ -77,23 +77,46 @@ header{
 .input-section{
     display: flex;
     flex-direction: column;
+
     gap: 10px;
 }
 
+.input-box{
+    background: white;
+
+    padding: 20px;
+    border-radius: 15px;
+
+    box-shadow: 0 5px 15px rgba(37, 99, 235, .15);
+}
+
+.input-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+
+    margin-top:15px;
+}
+
 #noteInput{
-    padding: 15px;
-    border: 2px solid #dbeafe;
-    border-radius: 10px;
-    outline: none;
-    width: 100%;
-    resize: none;
-    height: 120px;
+    padding:15px;
+    border:2px solid #dbeafe;
+    border-radius:10px;
+    outline:none;
+
+    width:100%;
+    height:120px;
+
+    resize:none;
+
+    transition:
+        border-color .3s ease,
+        box-shadow .3s ease;
 }
 
 #noteInput:focus{
-    border-color: #2563eb;
-    box-shadow: 0 0 10px rgba(37, 99, 235, .2);
-    transition: .3s;
+    border-color:#2563eb;
+    box-shadow:0 0 10px rgba(37,99,235,.2);
 }
 
 #addBtn{
@@ -115,6 +138,26 @@ header{
 #addBtn:disabled{
     background: #94a3b8;
     cursor: not-allowed;
+}
+
+#colorBtn{
+    padding:12px 18px;
+
+    background:white;
+
+    border:1px solid #dbeafe;
+    border-radius:10px;
+
+    cursor:pointer;
+
+    transition:
+        background-color .3s ease,
+        transform .3s ease;
+}
+
+#colorBtn:hover{
+    background:#dbeafe;
+    transform:scale(1.05);
 }
 
 .note{
