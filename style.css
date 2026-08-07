@@ -292,3 +292,21 @@ main{
 .empty-state p{
     margin: 0;
 }
+
+@media (max-width: 768px) {
+
+    header{        
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+    } 
+
+    #searchInput{
+        max-width: none;
+    }
+
+    .note{
+        padding: 10px;
+    }
+    
+}
