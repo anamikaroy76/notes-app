@@ -1,50 +1,84 @@
-const noteInput = document.querySelector("#noteInput");
-const addBtn = document.querySelector("#addBtn");
-const searchInput = document.querySelector("#searchInput");
-const pinnedNotesContainer = document.querySelector("#pinnedNotesContainer");
-const allNotesContainer = document.querySelector("#allNotesContainer");
+const noteInput = document.getElementById("noteInput");
+const addBtn = document.getElementById("addBtn");
+
+const searchInput = document.getElementById("searchInput");
+
+const pinnedNotesContainer = document.getElementById("pinnedNotesContainer");
+const allNotesContainer = document.getElementById("allNotesContainer");
+
+const pinnedSection = document.querySelector(".pinned-section");
+const allNotesSection = document.querySelector(".all-notes-section");
+
+const emptyState = document.getElementById("emptyState");
+
 
 let tasks = [];
 let editingIndex = -1;
 
-function renderNotes(){
-    
+function renderNotes() {
+
     pinnedNotesContainer.innerHTML = "";
     allNotesContainer.innerHTML = "";
+    emptyState.innerHTML = "";
+
+    if (tasks.length === 0) {
+
+        pinnedSection.style.display = "none";
+        allNotesSection.style.display = "none";
+
+        emptyState.innerHTML = `
+            <div class="empty-state">
+                <i data-lucide="notebook-pen"></i>
+                <h3>No Notes Yet</h3>
+                <p>Create your first note to get started.</p>
+            </div>
+        `;
         
-    for (let i = 0; i < tasks.length; i++) {
-       createNoteTasks(tasks[i], i);
+        lucide.createIcons();
+
+        return;
     }
+
+    const hasPinned = tasks.some(task => task.pinned);
+    const hasNormal = tasks.some(task => !task.pinned);
+
+    pinnedSection.style.display = hasPinned ? "" : "none";
+    allNotesSection.style.display = hasNormal ? "" : "none";
+
+    for (let i = 0; i < tasks.length; i++) {
+        createNoteTasks(tasks[i], i);
+    }
+
+    lucide.createIcons();
 }
 
 
 let createNoteTasks = function (noteTask, index) {
-    let note = document.createElement("div");
+    const note = document.createElement("div");
     note.classList.add("note");
 
-    let p = document.createElement("p");
+    const p = document.createElement("p");
     p.textContent = noteTask.text;
 
-    let buttonContainer = document.createElement("div");
+    const buttonContainer = document.createElement("div");
     buttonContainer.classList.add("buttonContainer");
 
-    let pinBtn = document.createElement("button");
-
-    if (noteTask.pinned) {
-        pinBtn.textContent = "Unpin";
-    } else {
-        pinBtn.textContent = "Pin";
-    }
-
+    const pinBtn = document.createElement("button");
+    pinBtn.innerHTML = `<i data-lucide="pin"></i>`;
     pinBtn.classList.add("pinBtn");
 
-    let editBtn = document.createElement("button");
-    editBtn.textContent = "Edit";
+    const editBtn = document.createElement("button");
+    editBtn.innerHTML = `<i data-lucide="pencil"></i>`;
     editBtn.classList.add("editBtn");
 
-    let deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "Delete";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.innerHTML = `<i data-lucide="trash-2"></i>`;
     deleteBtn.classList.add("deleteBtn");
+
+    pinBtn.title = noteTask.pinned ? "Unpin Note" : "Pin Note";
+
+    editBtn.title = "Edit Note";
+    deleteBtn.title = "Delete Note";
  
     buttonContainer.appendChild(pinBtn);
     buttonContainer.appendChild(editBtn);
@@ -56,8 +90,14 @@ let createNoteTasks = function (noteTask, index) {
         pinnedNotesContainer.appendChild(note);
     } else {
         allNotesContainer.appendChild(note);
-    }
-    
+    };
+
+    if (noteTask.pinned) {
+       pinBtn.classList.add("pinned");
+    } else {
+       pinBtn.classList.remove("pinned");
+    };
+
 
     pinBtn.addEventListener("click", function () {
         noteTask.pinned = !noteTask.pinned;
@@ -69,11 +109,11 @@ let createNoteTasks = function (noteTask, index) {
         renderNotes();
     })
 
+
     editBtn.addEventListener("click", function () {
         noteInput.value = noteTask.text;
         editingIndex = index;
         addBtn.textContent = "Update Note";
-        //note.remove();
     });
 
     deleteBtn.addEventListener("click", function () {
@@ -154,4 +194,3 @@ window.addEventListener("load", function () {
     };
 });
 
-lucide.createIcons();
