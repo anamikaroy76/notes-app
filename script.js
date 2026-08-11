@@ -1,4 +1,5 @@
 const noteInput = document.getElementById("noteInput");
+
 const addBtn = document.getElementById("addBtn");
 
 const searchInput = document.getElementById("searchInput");
@@ -11,9 +12,127 @@ const allNotesSection = document.querySelector(".all-notes-section");
 
 const emptyState = document.getElementById("emptyState");
 
+const toastContainer = document.getElementById("toastContainer");
+
+const colorOptions = document.querySelectorAll(".color-option");
+
+const colorBtn = document.getElementById("colorBtn");
+
+const colorPicker = document.querySelector(".color-picker");
+
+const themeBtn = document.getElementById("themeBtn");
+const themeIcon = themeBtn.querySelector("i");
+
+const body = document.body;
+
+let selectedColor = "#dbeafe";
 
 let tasks = [];
 let editingIndex = -1;
+
+themeBtn.addEventListener("click", function () {
+    body.classList.toggle("dark");
+
+    const isDark = body.classList.contains("dark");
+
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+
+    themeBtn.innerHTML = `
+        <i data-lucide="${isDark ? "sun" : "moon"}"></i>
+        `;
+
+    lucide.createIcons();
+});
+
+
+document.addEventListener("keydown", function (event) {
+    //console.log("KEY PRESSED:", event.key);
+
+    if (event.ctrlKey && event.key === "d") {
+        event.preventDefault();
+        themeBtn.click();
+    }
+
+    if (event.key === "Escape") {
+        colorPicker.style.display = "none";
+    }
+
+    if (event.ctrlKey && event.key === "Enter") {
+        event.preventDefault();
+        addBtn.click();
+    }
+});
+
+
+colorBtn.addEventListener("click", () => {
+    if (colorPicker.style.display === "none") {
+        colorPicker.style.display = "flex";
+    } else {
+        colorPicker.style.display = "none";
+    }
+});
+
+
+colorOptions.forEach(option => {
+
+    option.style.backgroundColor = option.dataset.color;
+
+    option.addEventListener("click", function () {
+
+        colorOptions.forEach(item => {
+
+            item.classList.remove("selected");
+
+        });
+
+        option.classList.add("selected");
+
+        selectedColor = option.dataset.color;
+
+        colorPicker.style.display = "none";
+    });
+});
+
+
+// Helper Functions
+function showToast(message, type) {
+
+    const toast = document.createElement("div");
+
+    toast.classList.add("toast", type);
+
+    const toastConfig = {
+        success: {
+            icon: "check-circle"
+        },
+        error: {
+            icon: "circle-x"
+        },
+        info: {
+            icon: "info"
+        }
+    };
+
+    toast.innerHTML = `
+        <i data-lucide="${toastConfig[type].icon}"></i>
+        <span>${message}</span>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    lucide.createIcons();
+
+    setTimeout(() => {
+        toast.classList.add("fade-out");
+
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+
+    }, 3000);
+};
+ 
+
 
 function renderNotes() {
 
@@ -50,12 +169,14 @@ function renderNotes() {
     }
 
     lucide.createIcons();
-}
+};
 
 
 let createNoteTasks = function (noteTask, index) {
     const note = document.createElement("div");
     note.classList.add("note");
+
+    note.style.backgroundColor = noteTask.color || "#ffffff";
 
     const p = document.createElement("p");
     p.textContent = noteTask.text;
@@ -112,9 +233,21 @@ let createNoteTasks = function (noteTask, index) {
 
     editBtn.addEventListener("click", function () {
         noteInput.value = noteTask.text;
-        editingIndex = index;
-        addBtn.textContent = "Update Note";
+
+        selectedColor = noteTask.color || "#dbeafe";
+
+        colorOptions.forEach(option => {
+            option.classList.remove("selected");
+
+            if (option.dataset.color === selectedColor) {
+                option.classList.add("selected");
+            }
+        });
+
+         editingIndex = index;
+         addBtn.textContent = "Update Note";
     });
+
 
     deleteBtn.addEventListener("click", function () {
 
@@ -127,12 +260,16 @@ let createNoteTasks = function (noteTask, index) {
             localStorage.setItem("tasks", JSON.stringify(tasks));
 
             renderNotes();
+
+            showToast("Note Deleted", "error");
+
         }
 
     });
 
 
 };
+
 
 searchInput.addEventListener("input", function () {
     let searchValue = searchInput.value.toLowerCase();
@@ -159,38 +296,61 @@ addBtn.addEventListener("click", function () {
      if (editingIndex === -1) {
 
         let newTask = {
-          text: noteInputValue,
-          pinned: false,
+            text: noteInputValue,
+            pinned: false,
+            color: selectedColor,
         }
 
         tasks.push(newTask);
 
+        showToast("Note Added", "success");
+
      } else {
 
         tasks[editingIndex].text = noteInputValue;
+        tasks[editingIndex].color = selectedColor;
+        
+        showToast("Note Updated", "info");
      }
     
      localStorage.setItem("tasks", JSON.stringify(tasks));
 
      editingIndex = -1;
 
-     addBtn.textContent = "Add Note"
+     addBtn.textContent = "Add Note";
 
      renderNotes();
      
      noteInput.value = "";
+     
+
 });
 
 
 
 window.addEventListener("load", function () {
+
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+        body.classList.add("dark");
+
+        themeBtn.innerHTML = `<i data-lucide="sun"></i>`;
+    } else {
+
+        themeBtn.innerHTML = `<i data-lucide="moon"></i>`;
+
+    };
+
+    lucide.createIcons();
+
     let arr = localStorage.getItem("tasks");
     let saveNote = JSON.parse(arr);
+
     if (saveNote === null) {
         return;
-    } else{
-        tasks = saveNote;
-        renderNotes();
-    };
-});
+    }
 
+    tasks = saveNote;
+    renderNotes();
+});
