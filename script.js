@@ -23,12 +23,18 @@ const colorPicker = document.querySelector(".color-picker");
 const themeBtn = document.getElementById("themeBtn");
 const themeIcon = themeBtn.querySelector("i");
 
+const pinnedCount = document.getElementById("pinnedCount");
+const allNotesCount = document.getElementById("allNotesCount");
+
+
 const body = document.body;
 
 let selectedColor = "#dbeafe";
 
 let tasks = [];
 let editingIndex = -1;
+let currentSearch = "";
+
 
 themeBtn.addEventListener("click", function () {
     body.classList.toggle("dark");
@@ -94,7 +100,6 @@ colorOptions.forEach(option => {
 });
 
 
-// Helper Functions
 function showToast(message, type) {
 
     const toast = document.createElement("div");
@@ -130,20 +135,55 @@ function showToast(message, type) {
         }, 300);
 
     }, 3000);
-};
+}
+
+
+// Helper function
+function sortTasks() {
+    tasks.sort((a, b) => {
+
+        if (a.pinned !== b.pinned) {
+            return b.pinned - a.pinned;
+        }
+
+        return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+}
+
+
+// Another helper function
+function refreshNotes() {
+    const filteredTasks = tasks.filter(task =>
+        task.text.toLowerCase().includes(currentSearch)
+    );
+
+    renderNotes(filteredTasks);
+}
  
 
-
-function renderNotes() {
+// Render function
+function renderNotes(notes = tasks) {
 
     pinnedNotesContainer.innerHTML = "";
     allNotesContainer.innerHTML = "";
     emptyState.innerHTML = "";
 
-    if (tasks.length === 0) {
+    if (notes.length === 0) {
 
-        pinnedSection.style.display = "none";
-        allNotesSection.style.display = "none";
+    pinnedSection.style.display = "none";
+    allNotesSection.style.display = "none";
+
+    if (currentSearch !== "") {
+
+        emptyState.innerHTML = `
+            <div class="empty-state">
+                <i data-lucide="search-x"></i>
+                <h3>No notes found for "${currentSearch}"</h3>
+                <p>Try searching for something else.</p>
+            </div>
+        `;
+
+    } else {
 
         emptyState.innerHTML = `
             <div class="empty-state">
@@ -152,27 +192,35 @@ function renderNotes() {
                 <p>Create your first note to get started.</p>
             </div>
         `;
-        
-        lucide.createIcons();
 
-        return;
     }
 
-    const hasPinned = tasks.some(task => task.pinned);
-    const hasNormal = tasks.some(task => !task.pinned);
+    lucide.createIcons();
+    return;
+    }
+
+    const hasPinned = notes.some(task => task.pinned);
+    const hasNormal = notes.some(task => !task.pinned);
+
+    const pinnedTotal = notes.filter(task => task.pinned).length;
+    const allNotesTotal = notes.filter(task => !task.pinned).length;
+
+    pinnedCount.textContent = pinnedTotal;
+    allNotesCount.textContent = allNotesTotal;
 
     pinnedSection.style.display = hasPinned ? "" : "none";
     allNotesSection.style.display = hasNormal ? "" : "none";
 
-    for (let i = 0; i < tasks.length; i++) {
-        createNoteTasks(tasks[i], i);
+    for (let i = 0; i < notes.length; i++) {
+        createNoteTasks(notes[i]);
     }
 
     lucide.createIcons();
-};
+}
 
 
-let createNoteTasks = function (noteTask, index) {
+let createNoteTasks = function (noteTask) {
+
     const note = document.createElement("div");
     note.classList.add("note");
 
@@ -180,6 +228,10 @@ let createNoteTasks = function (noteTask, index) {
 
     const p = document.createElement("p");
     p.textContent = noteTask.text;
+
+    const dateTime = document.createElement("small");
+    const date = new Date(noteTask.createdAt);
+    dateTime.textContent = date.toLocaleString();
 
     const buttonContainer = document.createElement("div");
     buttonContainer.classList.add("buttonContainer");
@@ -205,35 +257,36 @@ let createNoteTasks = function (noteTask, index) {
     buttonContainer.appendChild(editBtn);
     buttonContainer.appendChild(deleteBtn);
     note.appendChild(p);
+    note.appendChild(dateTime);
     note.appendChild(buttonContainer);
 
     if (noteTask.pinned) {
         pinnedNotesContainer.appendChild(note);
     } else {
         allNotesContainer.appendChild(note);
-    };
+    }
 
     if (noteTask.pinned) {
        pinBtn.classList.add("pinned");
     } else {
        pinBtn.classList.remove("pinned");
-    };
+    }
 
 
     pinBtn.addEventListener("click", function () {
         noteTask.pinned = !noteTask.pinned;
 
-        tasks.sort((a, b) => b.pinned - a.pinned);
+        sortTasks();
 
         localStorage.setItem("tasks", JSON.stringify(tasks));
 
-        renderNotes();
-    })
-
+        refreshNotes();
+    });
 
     editBtn.addEventListener("click", function () {
-        noteInput.value = noteTask.text;
 
+        noteInput.value = noteTask.text;
+    
         selectedColor = noteTask.color || "#dbeafe";
 
         colorOptions.forEach(option => {
@@ -242,10 +295,12 @@ let createNoteTasks = function (noteTask, index) {
             if (option.dataset.color === selectedColor) {
                 option.classList.add("selected");
             }
-        });
+        })
 
-         editingIndex = index;
-         addBtn.textContent = "Update Note";
+        editingIndex = tasks.indexOf(noteTask);
+
+        addBtn.textContent = "Update Note";
+
     });
 
 
@@ -259,7 +314,10 @@ let createNoteTasks = function (noteTask, index) {
             tasks.splice(currentNote, 1);
             localStorage.setItem("tasks", JSON.stringify(tasks));
 
-            renderNotes();
+            currentSearch = "";
+            searchInput.value = "";
+
+            refreshNotes();
 
             showToast("Note Deleted", "error");
 
@@ -267,22 +325,20 @@ let createNoteTasks = function (noteTask, index) {
 
     });
 
-
 };
 
 
 searchInput.addEventListener("input", function () {
-    let searchValue = searchInput.value.toLowerCase();
-    let allNotes = document.querySelectorAll(".note");
-    
-    allNotes.forEach((note) => {
-        let p = note.querySelector("p");
-        if (p.textContent.toLowerCase().includes(searchValue)) {
-            note.style.display = "";
-        } else{
-            note.style.display = "none";
-        };
-    });
+
+     const searchValue = searchInput.value.toLowerCase().trim();
+
+     currentSearch = searchValue;
+     
+     const filteredTasks = tasks.filter(task =>
+         task.text.toLowerCase().includes(searchValue)
+     );
+
+     renderNotes(filteredTasks);
 });
 
 
@@ -299,9 +355,11 @@ addBtn.addEventListener("click", function () {
             text: noteInputValue,
             pinned: false,
             color: selectedColor,
+            createdAt: Date.now(),
         }
 
         tasks.push(newTask);
+        sortTasks();
 
         showToast("Note Added", "success");
 
@@ -319,13 +377,14 @@ addBtn.addEventListener("click", function () {
 
      addBtn.textContent = "Add Note";
 
-     renderNotes();
+     //renderNotes();
+
+     refreshNotes();
      
      noteInput.value = "";
      
 
 });
-
 
 
 window.addEventListener("load", function () {
@@ -335,12 +394,15 @@ window.addEventListener("load", function () {
     if (savedTheme === "dark") {
         body.classList.add("dark");
 
-        themeBtn.innerHTML = `<i data-lucide="sun"></i>`;
+        themeBtn.innerHTML = `
+            <i data-lucide="sun"></i>
+        `;
+
     } else {
-
-        themeBtn.innerHTML = `<i data-lucide="moon"></i>`;
-
-    };
+        themeBtn.innerHTML = `
+            <i data-lucide="moon"></i>
+        `;
+    }
 
     lucide.createIcons();
 
@@ -352,5 +414,16 @@ window.addEventListener("load", function () {
     }
 
     tasks = saveNote;
+
+    tasks.forEach(task => {
+        if (!task.createdAt) {
+            task.createdAt = Date.now();
+        }
+    });
+
+    sortTasks();
+
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
     renderNotes();
 });

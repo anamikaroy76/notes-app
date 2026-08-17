@@ -235,8 +235,12 @@ body.dark #colorBtn {
     transition: transform .2s ease;
 }
 
+.note p {
+    color: #1e293b;
+}
+
 .note:hover{
-    transform:translateY(-3px);
+    transform: translateY(-2px);
 } 
 
 body.dark .note {
@@ -265,6 +269,31 @@ body.dark .all-notes-section h2 {
     color: #f8fafc;
 }
 
+#pinnedCount,
+#allNotesCount {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 24px;
+    height: 24px;
+
+    padding: 0 7px;
+
+    border-radius: 50px;
+
+    background: #dbeafe;
+    color: #2563eb;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+body.dark #pinnedCount,
+body.dark #allNotesCount {
+    background: #334155;
+    color: #bfdbfe;
+}
 
 .buttonContainer{
     display: flex;
@@ -335,6 +364,14 @@ body.dark .all-notes-section h2 {
 .deleteBtn {
     color: white;
 }
+
+.pinBtn:focus-visible,
+.editBtn:focus-visible,
+.deleteBtn:focus-visible {
+    outline: 3px solid #93c5fd;
+    outline-offset: 2px;
+}
+
 
 .empty-state{
     min-height: 200px;
@@ -467,6 +504,17 @@ body.dark .color-picker {
 .color-option.selected {
     border: 3px solid white;
     box-shadow: 0 0 0 2px white, 0 2px 6px rgba(37, 99, 235, .15);
+}
+
+.note p {
+    margin: 0 0 8px 0;
+}
+
+.note small {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: 0.7;
 }
 
 
