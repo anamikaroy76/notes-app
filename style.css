@@ -510,15 +510,19 @@ body.dark .color-picker {
     margin: 0 0 8px 0;
 }
 
-.note small {
+.note time {
     display: block;
-    margin-top: 6px;
     font-size: 12px;
     opacity: 0.7;
 }
 
+.note .createdTime {
+    margin-top: 5px;
+}
 
-
+.note .updatedTime {
+    margin-top: 2px;
+}
 
 @media (max-width: 768px) {
 

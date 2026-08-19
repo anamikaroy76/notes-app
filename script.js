@@ -229,9 +229,21 @@ let createNoteTasks = function (noteTask) {
     const p = document.createElement("p");
     p.textContent = noteTask.text;
 
-    const dateTime = document.createElement("small");
-    const date = new Date(noteTask.createdAt);
-    dateTime.textContent = date.toLocaleString();
+    const createdTime = document.createElement("time");
+    createdTime.classList.add("createdTime");
+
+    const createdDate = new Date(noteTask.createdAt);
+
+    createdTime.dateTime = createdDate.toISOString();
+
+    createdTime.textContent = `Created: ${createdDate.toLocaleString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+    })}`;
+
 
     const buttonContainer = document.createElement("div");
     buttonContainer.classList.add("buttonContainer");
@@ -257,7 +269,27 @@ let createNoteTasks = function (noteTask) {
     buttonContainer.appendChild(editBtn);
     buttonContainer.appendChild(deleteBtn);
     note.appendChild(p);
-    note.appendChild(dateTime);
+    note.appendChild(createdTime);
+
+    if (noteTask.updatedAt) {
+        const updatedTime = document.createElement("time");
+        updatedTime.classList.add("updatedTime");
+
+        const updatedDate = new Date(noteTask.updatedAt);
+
+        updatedTime.dateTime = updatedDate.toISOString();
+
+        updatedTime.textContent = `Updated: ${updatedDate.toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+        })}`;
+
+        note.appendChild(updatedTime);
+    }
+
     note.appendChild(buttonContainer);
 
     if (noteTask.pinned) {
@@ -367,6 +399,8 @@ addBtn.addEventListener("click", function () {
 
         tasks[editingIndex].text = noteInputValue;
         tasks[editingIndex].color = selectedColor;
+
+        tasks[editingIndex].updatedAt = Date.now();
         
         showToast("Note Updated", "info");
      }
