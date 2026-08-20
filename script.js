@@ -218,6 +218,17 @@ function renderNotes(notes = tasks) {
     lucide.createIcons();
 }
 
+function formatDate(date) {
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`; 
+}
 
 let createNoteTasks = function (noteTask) {
 
@@ -236,13 +247,7 @@ let createNoteTasks = function (noteTask) {
 
     createdTime.dateTime = createdDate.toISOString();
 
-    createdTime.textContent = `Created: ${createdDate.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-    })}`;
+    createdTime.textContent = `Created: ${formatDate(createdDate)}`;
 
 
     const buttonContainer = document.createElement("div");
@@ -279,13 +284,7 @@ let createNoteTasks = function (noteTask) {
 
         updatedTime.dateTime = updatedDate.toISOString();
 
-        updatedTime.textContent = `Updated: ${updatedDate.toLocaleString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-        })}`;
+        updatedTime.textContent = `Updated: ${formatDate(updatedDate)}`;
 
         note.appendChild(updatedTime);
     }
