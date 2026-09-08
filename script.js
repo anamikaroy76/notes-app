@@ -2,6 +2,8 @@ const noteInput = document.getElementById("noteInput");
 
 const addBtn = document.getElementById("addBtn");
 
+const cancelBtn = document.querySelector("#cancelBtn");
+
 const searchInput = document.getElementById("searchInput");
 
 const pinnedNotesContainer = document.getElementById("pinnedNotesContainer");
@@ -25,7 +27,6 @@ const themeIcon = themeBtn.querySelector("i");
 
 const pinnedCount = document.getElementById("pinnedCount");
 const allNotesCount = document.getElementById("allNotesCount");
-
 
 const body = document.body;
 
@@ -416,6 +417,25 @@ addBtn.addEventListener("click", function () {
      
      noteInput.value = "";
      
+
+});
+
+cancelBtn.addEventListener("click", function () {
+    editingIndex = -1;
+    
+    addBtn.textContent = "Add Note";
+
+    selectedColor = "#dbeafe";
+
+    colorOptions.forEach(option => {
+        option.classList.remove("selected");
+
+        if (option.dataset.color === selectedColor) {
+            option.classList.add("selected");
+        }
+    });
+
+    noteInput.value = "";
 
 });
 

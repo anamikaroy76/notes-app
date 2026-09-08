@@ -196,6 +196,25 @@ body.dark #addBtn {
     color: white;
 }
 
+#cancelBtn {
+    padding: 12px 18px;
+    background-color: #e5e7eb;
+    color: #111827;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color .3s ease, transform .3s ease;
+}
+
+#cancelBtn:hover {
+    background-color: #d1d5db;
+    transform: scale(1.05);
+}
+
+body.dark #cancelBtn {
+    background-color: #475569;
+    color: white;
+}
 
 #colorBtn{
     padding:12px 18px;
